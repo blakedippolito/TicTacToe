@@ -7,6 +7,7 @@ class TicTacToe {
         this.player1Symbol = "X"
         this.player2Symbol = "O"
         this.previousMoves = []
+        
     }
 
     calculateTurn () {
@@ -17,31 +18,36 @@ class TicTacToe {
 
 
     takeTurn () {
+        let turn = this.calculateTurn()
         if (this.counter%2 !==0) {
             console.log('Player 1 turn')
-            let turn = this.calculateTurn()
+            
             while (!this.previousMoves.includes(turn)) {
-                this.previousMoves.push(this.calculateTurn())
-                document.querySelector(`#r${turn}`).innerText = this.player1Symbol
+                this.previousMoves.push(turn)
+                let player1Square = document.querySelector(`#r${turn}`)
+                player1Square.innerText = this.player1Symbol
+                player1Square.classList.add('green')
             }
             
         } else {
             console.log('Player 2 turn')
-
-            let turn = this.calculateTurn()
             while (!this.previousMoves.includes(turn)) {
-                this.previousMoves.push(this.calculateTurn())
-                document.querySelector(`#r${turn}`).innerText = this.player1Symbol
+                this.previousMoves.push(turn)
+                let player2Square = document.querySelector(`#r${turn}`)
+                player2Square.innerText = this.player2Symbol
+                player2Square.classList.add('red')
             }
-            document.querySelector(`#r${turn}`).innerText = this.player2Symbol
         }
         this.counter++;
         console.log(this.previousMoves)
     }
 
     startGame() {
+        
         const playTurn = () => {
-            if (this.counter<=9) {
+            let movesSet = new Set(this.previousMoves)
+            if (movesSet.size!==9) {
+                console.log(movesSet.size)
                 this.takeTurn()
                 setTimeout(playTurn, 1000)
             }

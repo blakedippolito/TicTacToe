@@ -22,8 +22,13 @@ img{
 /*******************************************/
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+header{
+  padding: 100px;
 }
 .board {
   display: flex;
@@ -42,4 +47,12 @@ body {
 .column{
   height: 150px;
   width: 150px;
+}
+
+.green {
+  background-color: green;
+}
+
+.red {
+  background-color: red;
 }
