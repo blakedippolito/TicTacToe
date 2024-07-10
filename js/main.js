@@ -6,30 +6,47 @@ class TicTacToe {
         this.counter = 1
         this.player1Symbol = "X"
         this.player2Symbol = "O"
+        this.previousMoves = []
     }
 
+    calculateTurn () {
+        let turn = Math.floor(Math.random()*9+1)
+        return turn
+
+    }
 
 
     takeTurn () {
         if (this.counter%2 !==0) {
             console.log('Player 1 turn')
-            const turn = Math.floor(Math.random()*9)
-            console.log(turn)
-            document.querySelector(`#r${turn}`).innerText = this.player1Symbol
+            let turn = this.calculateTurn()
+            while (!this.previousMoves.includes(turn)) {
+                this.previousMoves.push(this.calculateTurn())
+                document.querySelector(`#r${turn}`).innerText = this.player1Symbol
+            }
+            
         } else {
             console.log('Player 2 turn')
-            const turn = Math.floor(Math.random()*9)
-            console.log(turn)
+
+            let turn = this.calculateTurn()
+            while (!this.previousMoves.includes(turn)) {
+                this.previousMoves.push(this.calculateTurn())
+                document.querySelector(`#r${turn}`).innerText = this.player1Symbol
+            }
             document.querySelector(`#r${turn}`).innerText = this.player2Symbol
         }
         this.counter++;
-        console.log(this.counter)
+        console.log(this.previousMoves)
     }
 
     startGame() {
-        while (this.counter<=10) {
-            this.takeTurn()
+        const playTurn = () => {
+            if (this.previousMoves.length===9) {
+                this.takeTurn()
+                setTimeout(playTurn, 1000)
+            }
         }
+        playTurn();
     }
     
 }
