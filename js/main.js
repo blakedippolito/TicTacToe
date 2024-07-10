@@ -41,7 +41,7 @@ class TicTacToe {
 
     startGame() {
         const playTurn = () => {
-            if (this.previousMoves.length===9) {
+            if (this.counter<=9) {
                 this.takeTurn()
                 setTimeout(playTurn, 1000)
             }
