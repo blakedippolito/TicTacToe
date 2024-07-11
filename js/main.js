@@ -89,6 +89,7 @@ class TicTacToe {
 
     if (this.gameOver) return;
 
+    // Don't understand the purpose of this
     if (this.currentTurnHandler) {
       document.querySelectorAll('.row').forEach((cell) => {
         cell.removeEventListener('click', this.currentTurnHandler);
