@@ -41,7 +41,7 @@ class TicTacToe {
   }
 
   autoTurn() {
-    const currentPlayer = this.determinePlayerTurn();
+    const currentPlayer = this.determineActivePlayer();
     TicTacToe.updateStateMessage(`Player ${currentPlayer}'s turn`);
     if (this.gameOver) {
       return;
@@ -75,7 +75,7 @@ class TicTacToe {
     return turn;
   }
 
-  determinePlayerTurn() {
+  determineActivePlayer() {
     // Return the player number that matches
     if (this.turnCounter % 2 === 1) {
       return 1;
@@ -85,6 +85,8 @@ class TicTacToe {
   }
 
   playerTurn() {
+    // THIS PART NEEDS WORK
+
     if (this.gameOver) return;
 
     if (this.currentTurnHandler) {
@@ -110,15 +112,19 @@ class TicTacToe {
   }
 
   userGame() {
-    let turn = this.determinePlayerTurn();
-    TicTacToe.updateStateMessage(turn);
+    const activePlayer = this.determineActivePlayer();
+    TicTacToe.updateStateMessage(activePlayer);
 
     const playTurn = () => {
-      let movesSet = new Set(this.previousMoves);
-      if (movesSet.size !== 9 && !this.gameOver) {
-        if (turn === 0) {
+      // Not had 9 turns or game over?
+      if (this.turnCounter < 9 && !this.gameOver) {
+        // THIS PART NEEDS WORK
+        // If it is the players turn, let them play
+        if (activePlayer === 0) {
           this.playerTurn();
-        } else {
+        }
+        //   If it is the computers turn, auto play
+        else {
           this.autoTurn();
         }
       }
@@ -128,7 +134,7 @@ class TicTacToe {
   }
 
   determineWinner() {
-    const activePlayer = this.determinePlayerTurn();
+    const activePlayer = this.determineActivePlayer();
     let currentPlayerMoves =
       activePlayer === 1 ? this.player1Moves : this.player2Moves;
 
@@ -144,7 +150,6 @@ class TicTacToe {
   }
 
   static setSquare(move, counter, colour) {
-    // Abstracted logic out
     const targetSquare = document.querySelector(`#r${move}`);
     targetSquare.innerText = counter;
     targetSquare.classList.add(colour);
@@ -160,6 +165,18 @@ class TicTacToe {
 
   static updateStateMessage(msg) {
     document.querySelector('.gameState').innerText = msg;
+  }
+
+  static enableClicking() {
+    document
+      .querySelector('.board')
+      .addEventListener('click', handleBoardClick);
+  }
+
+  static disableClicking() {
+    document
+      .querySelector('.board')
+      .removeEventListener('click', handleBoardClick);
   }
 }
 
@@ -184,16 +201,10 @@ document.querySelector('#userPlay').addEventListener('click', () => {
   let userTicToe = new TicTacToe(player1Name);
   document.querySelector('input').placeholder = player1Name;
 
-  //   Remove existing click event
-  document
-    .querySelector('.board')
-    .removeEventListener('click', handleBoardClick);
-
-  //   Listen to clicks on the board
-  document.querySelector('.board').addEventListener('click', handleBoardClick);
   userTicToe.userGame();
 });
 
+// NEEDS WORK
 function handleBoardClick(e) {
   console.log(e.target);
 }
