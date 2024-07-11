@@ -2,7 +2,7 @@ class TicTacToe {
   constructor(player1 = 'Player1', player2 = 'Player2') {
     this.player1 = player1;
     this.player2 = player2;
-    this.counter = 1;
+    this.turnCounter = 1;
     this.previousMoves = [];
     // Keep track of which moves are left - means will always pick an available move
     this.availableMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -23,16 +23,15 @@ class TicTacToe {
     this.currentTurnHandler = null;
   }
 
-  calculateTurn() {
+  pickRandomMove() {
+    // Pick a random move and remove it from the available moves
     let index = Math.floor(Math.random() * this.availableMoves.length);
     const turn = this.availableMoves.splice(index, 1);
-    console.log(`Picked ${turn}`);
-    console.log(this.availableMoves);
     return turn;
   }
 
   determinePlayerTurn() {
-    if (this.counter % 2 === 0) {
+    if (this.turnCounter % 2 === 0) {
       // Changed so number matches player
       return 1;
     } else {
@@ -41,34 +40,34 @@ class TicTacToe {
   }
 
   takeTurn() {
-    console.log('taking turn');
     if (this.gameOver) {
+      console.log('GAME OVER!');
       return;
     }
-    let turn = this.calculateTurn();
-    console.log(turn);
-    while (this.previousMoves.includes(turn)) {
-      turn = this.calculateTurn();
-    }
+    let nextMove = this.pickRandomMove();
 
-    this.previousMoves.push(turn);
+    // History of moves
+    this.previousMoves.push(nextMove);
 
-    if (this.counter % 2 !== 0) {
-      console.log('Player 1 turn');
-      this.player1Moves.push(turn);
-      let player1Square = document.querySelector(`#r${turn}`);
-      player1Square.innerText = 'X';
-      player1Square.classList.add('green');
+    if (this.turnCounter % 2 !== 0) {
+      this.updateStateMessage('Player 1 turn');
+      this.player1Moves.push(nextMove);
+      this.setSquare(nextMove, 'X', 'green');
     } else {
-      console.log('Player 2 turn');
-      this.player2Moves.push(turn);
-      let player2Square = document.querySelector(`#r${turn}`);
-      player2Square.innerText = 'O';
-      player2Square.classList.add('red');
+      this.updateStateMessage('Player 2 turn');
+      this.player2Moves.push(nextMove);
+      this.setSquare(nextMove, 'O', 'red');
     }
 
-    this.counter++;
+    this.turnCounter++;
     this.determineWinner();
+  }
+
+  setSquare(move, counter, colour) {
+    // Abstracted logic out
+    const targetSquare = document.querySelector(`#r${move}`);
+    targetSquare.innerText = counter;
+    targetSquare.classList.add(colour);
   }
 
   playerTurn() {
@@ -88,7 +87,7 @@ class TicTacToe {
 
       this.previousMoves.push(turn);
 
-      if (this.counter % 2 !== 0) {
+      if (this.turnCounter % 2 !== 0) {
         this.player1Moves.push(turn);
         event.target.innerText = 'X';
         event.target.classList.add('green');
@@ -98,7 +97,7 @@ class TicTacToe {
 
   userGame() {
     let turn = this.determinePlayerTurn();
-    this.updateState(turn);
+    this.updateStateMessage(turn);
 
     const playTurn = () => {
       let movesSet = new Set(this.previousMoves);
@@ -115,11 +114,14 @@ class TicTacToe {
   }
 
   autoGame() {
+    this.updateStateMessage('');
+
     const playTurn = () => {
-      let movesSet = new Set(this.previousMoves);
-      if (movesSet.size !== 9 && !this.gameOver) {
+      if (this.availableMoves.length !== 0 && !this.gameOver) {
         this.takeTurn();
         setTimeout(playTurn, 1000);
+      } else {
+        this.updateStateMessage('Game over');
       }
     };
 
@@ -128,14 +130,14 @@ class TicTacToe {
 
   determineWinner() {
     let currentPlayerMoves =
-      this.counter % 2 !== 0 ? this.player1Moves : this.player2Moves;
+      this.turnCounter % 2 !== 0 ? this.player1Moves : this.player2Moves;
     currentPlayerMoves.sort((a, b) => a - b);
 
     const checker = (arr, target) => target.every((v) => arr.includes(v));
 
     for (let combination of this.winningCombinations) {
       if (checker(currentPlayerMoves, combination)) {
-        const winner = this.counter % 2 !== 0 ? this.player1 : this.player2;
+        const winner = this.turnCounter % 2 !== 0 ? this.player1 : this.player2;
         console.log(`${winner} Wins!`);
         document.querySelector('h2').innerText = `${winner} Wins`;
         this.gameOver = true;
@@ -144,7 +146,7 @@ class TicTacToe {
     }
   }
 
-  updateState(msg) {
+  updateStateMessage(msg) {
     document.querySelector('.state').innerText = msg;
   }
 }
