@@ -41,6 +41,8 @@ class TicTacToe {
   }
 
   autoTurn() {
+    const currentPlayer = this.determinePlayerTurn();
+    TicTacToe.updateStateMessage(`Player ${currentPlayer}'s turn`);
     if (this.gameOver) {
       return;
     }
@@ -51,11 +53,9 @@ class TicTacToe {
     this.previousMoves.push(nextMove);
 
     if (this.turnCounter % 2 !== 0) {
-      TicTacToe.updateStateMessage('Player 1 turn');
       this.player1Moves.push(nextMove);
       TicTacToe.setSquare(nextMove, 'X', 'green');
     } else {
-      TicTacToe.updateStateMessage('Player 2 turn');
       this.player2Moves.push(nextMove);
       TicTacToe.setSquare(nextMove, 'O', 'red');
     }
@@ -76,11 +76,11 @@ class TicTacToe {
   }
 
   determinePlayerTurn() {
-    if (this.turnCounter % 2 === 0) {
-      // Changed so number matches player
+    // Return the player number that matches
+    if (this.turnCounter % 2 === 1) {
       return 1;
     } else {
-      return 0;
+      return 2;
     }
   }
 
@@ -128,7 +128,7 @@ class TicTacToe {
   }
 
   determineWinner() {
-    const activePlayer = this.turnCounter % 2 !== 0 ? 1 : 2;
+    const activePlayer = this.determinePlayerTurn();
     let currentPlayerMoves =
       activePlayer === 1 ? this.player1Moves : this.player2Moves;
 
@@ -136,7 +136,7 @@ class TicTacToe {
 
     for (let combination of this.winningCombinations) {
       if (checker(currentPlayerMoves, combination)) {
-        TicTacToe.updateStateMessage(`Player ${activePlayer} Wins!`);
+        TicTacToe.updateStateMessage(`Player ${activePlayer} wins!`);
         this.gameOver = true;
         return;
       }
