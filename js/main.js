@@ -1,5 +1,5 @@
 class TicTacToe {
-  constructor(player1, player2) {
+  constructor(player1 = "Player1", player2 = "Player2") {
     this.player1 = player1;
     this.player2 = player2;
     this.counter = 1;
@@ -16,6 +16,9 @@ class TicTacToe {
       [1, 5, 9],
       [3, 5, 7],
     ];
+    this.gameOver = false;
+
+    this.currentTurnHandler = null;
   }
 
   calculateTurn() {
@@ -23,7 +26,18 @@ class TicTacToe {
     return turn;
   }
 
+  determinePlayerTurn () {
+    if (this.counter%2===0) {
+        return 1
+    } else {
+        return 0
+    }
+  }
+
   takeTurn() {
+    if (this.gameOver) {
+      return;
+    }
     let turn = this.calculateTurn();
     while (this.previousMoves.includes(turn)) {
       turn = this.calculateTurn();
@@ -49,27 +63,102 @@ class TicTacToe {
     this.determineWinner();
   }
 
-  playGame() {
+  playerTurn() {
+    if (this.gameOver) return;
+
+    if (this.currentTurnHandler) {
+      document.querySelectorAll(".row").forEach((cell) => {
+        cell.removeEventListener("click", this.currentTurnHandler);
+      });
+    }
+
+    this.currentTurnHandler = (event) => {
+      const turn = parseInt(event.target.id.slice(1)); 
+      if (this.previousMoves.includes(turn)) {
+        return;
+      }
+
+      this.previousMoves.push(turn);
+
+      if (this.counter % 2 !== 0) {
+        this.player1Moves.push(turn);
+        event.target.innerText = "X";
+        event.target.classList.add("green");
+      }
+    };
+  }
+
+  userGame () {
+    let turn = this.determinePlayerTurn()
+    console.log(turn)
+    const playTurn = () => {
+        let movesSet = new Set(this.previousMoves);
+        if (movesSet.size !==9 && !this.gameOver) {
+            if (turn === 0) {
+                this.playerTurn()
+            } else {
+                this.takeTurn()
+        }
+    }
+
+    }
+    playTurn()
+    this.determineWinner()
+
+  }
+
+ autoGame() {
     const playTurn = () => {
       let movesSet = new Set(this.previousMoves);
-      if (movesSet.size !== 9) {
+      if (movesSet.size !== 9 && !this.gameOver) {
         this.takeTurn();
         setTimeout(playTurn, 1000);
       }
     };
-    
+
     playTurn();
   }
 
   determineWinner() {
-    let sortedMoves = this.counter%2!==0 ? this.player1Moves.sort((a,b)=>a-b) : this.player2Moves.sort((a,b)=>a-b)
-    
-    sortedMoves.filter(item=> {
-        
-    })
+    let currentPlayerMoves =
+      this.counter % 2 !== 0 ? this.player1Moves : this.player2Moves;
+    currentPlayerMoves.sort((a, b) => a - b);
 
+    const checker = (arr, target) => target.every((v) => arr.includes(v));
+
+    for (let combination of this.winningCombinations) {
+      if (checker(currentPlayerMoves, combination)) {
+        const winner = this.counter % 2 !== 0 ? this.player1 : this.player2;
+        console.log(`${winner} Wins!`);
+        document.querySelector("h2").innerText = `${winner} Wins`;
+        this.gameOver = true;
+        return;
+      }
+    }
   }
 }
 
-let tictactoe1 = new TicTacToe("Blake", "Lindsay");
-tictactoe1.playGame();
+//Auto Play
+document.querySelector("#autoPlay").addEventListener("click", () => {
+  document.querySelectorAll(".row").forEach((cell) => {
+    cell.innerHTML = "";
+    cell.classList.remove("green");
+    cell.classList.remove("red");
+  });
+  let player1Name = document.querySelector("input").value || "Player 1";
+  let autoTicTacToe = new TicTacToe(player1Name);
+  autoTicTacToe.autoGame();
+});
+
+//User Play
+document.querySelector("#userPlay").addEventListener("click", () => {
+    document.querySelectorAll(".row").forEach((cell) => {
+      cell.innerHTML = "";
+      cell.classList.remove("green");
+      cell.classList.remove("red");
+    });
+    let player1Name = document.querySelector("input").value || "Player 1";
+    let userTicToe = new TicTacToe(player1Name);
+    document.querySelector("input").placeholder = player1Name;
+    userTicToe.userGame();
+  });
