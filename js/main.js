@@ -26,18 +26,15 @@ class TicTacToe {
     return turn;
   }
 
-  determinePlayerTurn () {
-    if (this.counter%2===0) {
-        return 1
-    } else {
-        return 0
-    }
+  determinePlayerTurn() {
+    return this.counter % 2 !== 0 ? 0 : 1; // 0 for player, 1 for computer
   }
 
   takeTurn() {
     if (this.gameOver) {
       return;
     }
+    let player = this.determinePlayerTurn()
     let turn = this.calculateTurn();
     while (this.previousMoves.includes(turn)) {
       turn = this.calculateTurn();
@@ -45,7 +42,7 @@ class TicTacToe {
 
     this.previousMoves.push(turn);
 
-    if (this.counter % 2 !== 0) {
+    if (player === 0) {
       console.log("Player 1 turn");
       this.player1Moves.push(turn);
       let player1Square = document.querySelector(`#r${turn}`);
@@ -64,6 +61,7 @@ class TicTacToe {
   }
 
   playerTurn() {
+    let player = this.determinePlayerTurn()
     if (this.gameOver) return;
 
     if (this.currentTurnHandler) {
@@ -80,18 +78,22 @@ class TicTacToe {
 
       this.previousMoves.push(turn);
 
-      if (this.counter % 2 !== 0) {
+      if (player===0) {
         this.player1Moves.push(turn);
         event.target.innerText = "X";
         event.target.classList.add("green");
       }
     };
+    document.querySelectorAll(".row").forEach((cell) => {
+        cell.addEventListener("click", this.currentTurnHandler);
+      });
   }
 
   userGame () {
-    let turn = this.determinePlayerTurn()
-    console.log(turn)
+    
     const playTurn = () => {
+        let turn = this.determinePlayerTurn()
+        console.log(turn)
         let movesSet = new Set(this.previousMoves);
         if (movesSet.size !==9 && !this.gameOver) {
             if (turn === 0) {
