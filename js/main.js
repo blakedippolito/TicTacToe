@@ -26,7 +26,7 @@ class TicTacToe {
   pickRandomMove() {
     // Pick a random move and remove it from the available moves
     let index = Math.floor(Math.random() * this.availableMoves.length);
-    const turn = this.availableMoves.splice(index, 1);
+    const turn = this.availableMoves.splice(index, 1)[0];
     return turn;
   }
 
@@ -59,8 +59,12 @@ class TicTacToe {
       this.setSquare(nextMove, 'O', 'red');
     }
 
+    // Can only have a winner after the 5th move
+    if (this.turnCounter >= 5) {
+      this.determineWinner();
+    }
+    // No winner? Then increase counter
     this.turnCounter++;
-    this.determineWinner();
   }
 
   setSquare(move, counter, colour) {
@@ -117,11 +121,12 @@ class TicTacToe {
     this.updateStateMessage('');
 
     const playTurn = () => {
-      if (this.availableMoves.length !== 0 && !this.gameOver) {
+      if (this.gameOver) return;
+      if (this.availableMoves.length !== 0) {
         this.takeTurn();
-        setTimeout(playTurn, 1000);
+        setTimeout(playTurn, 100);
       } else {
-        this.updateStateMessage('Game over');
+        this.updateStateMessage('Game drawn');
       }
     };
 
@@ -129,17 +134,15 @@ class TicTacToe {
   }
 
   determineWinner() {
+    const activePlayer = this.turnCounter % 2 !== 0 ? 1 : 2;
     let currentPlayerMoves =
-      this.turnCounter % 2 !== 0 ? this.player1Moves : this.player2Moves;
-    currentPlayerMoves.sort((a, b) => a - b);
+      activePlayer === 1 ? this.player1Moves : this.player2Moves;
 
     const checker = (arr, target) => target.every((v) => arr.includes(v));
 
     for (let combination of this.winningCombinations) {
       if (checker(currentPlayerMoves, combination)) {
-        const winner = this.turnCounter % 2 !== 0 ? this.player1 : this.player2;
-        console.log(`${winner} Wins!`);
-        document.querySelector('h2').innerText = `${winner} Wins`;
+        this.updateStateMessage(`Player ${activePlayer} Wins!`);
         this.gameOver = true;
         return;
       }
@@ -147,7 +150,7 @@ class TicTacToe {
   }
 
   updateStateMessage(msg) {
-    document.querySelector('.state').innerText = msg;
+    document.querySelector('.gameState').innerText = msg;
   }
 }
 
