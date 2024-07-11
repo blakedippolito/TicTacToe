@@ -124,7 +124,7 @@ class TicTacToe {
       if (this.gameOver) return;
       if (this.availableMoves.length !== 0) {
         this.takeTurn();
-        setTimeout(playTurn, 100);
+        setTimeout(playTurn, 1000);
       } else {
         this.updateStateMessage('Game drawn');
       }
