@@ -22,7 +22,6 @@ class TicTacToe {
 
     this.currentTurnHandler = null;
   }
-
   autoGame() {
     // Play another turn in a second
     const turnTime = 1000;
@@ -179,7 +178,24 @@ class TicTacToe {
       .querySelector('.board')
       .removeEventListener('click', handleBoardClick);
   }
+
+  static generateBoard() {
+    const boardEle = document.querySelector('.board');
+    const rows = 3;
+    const columns = 3;
+    let boardHTML = '';
+    for (let column = 1; column <= columns; column++) {
+      boardHTML += `<section class="column" id="c${column}">\n`;
+      for (let row = 1; row <= rows; row++) {
+        boardHTML += `<section class="row" id="r${(column - 1) * 3 + row}"></section>\n`;
+      }
+      boardHTML += `</section>\n`;
+    }
+    boardEle.innerHTML = boardHTML;
+  }
 }
+
+TicTacToe.generateBoard();
 
 //Auto Play
 document.querySelector('#autoPlay').addEventListener('click', () => {
