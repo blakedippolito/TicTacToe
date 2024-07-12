@@ -194,12 +194,13 @@ class TicTacToe {
     boardEle.innerHTML = boardHTML;
   }
 }
-
+// Generates a new board on page load
 TicTacToe.generateBoard();
 
 //Auto Play
 document.querySelector('#autoPlay').addEventListener('click', () => {
-  TicTacToe.clearBoard();
+  // Creates a new board for a new game
+  TicTacToe.generateBoard();
   // New game has no message
   TicTacToe.updateStateMessage('');
 
@@ -210,7 +211,8 @@ document.querySelector('#autoPlay').addEventListener('click', () => {
 
 //User Play
 document.querySelector('#userPlay').addEventListener('click', () => {
-  TicTacToe.clearBoard();
+  // Creates a new board for a new game
+  TicTacToe.generateBoard();
   // New game has no message
   TicTacToe.updateStateMessage('');
 
