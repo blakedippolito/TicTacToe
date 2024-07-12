@@ -1,19 +1,11 @@
 class TicTacToe {
-<<<<<<< HEAD
   constructor(player1 = "Player1", player2 = "Player2") {
-    this.player1 = player1;
-    this.player2 = player2;
-    this.counter = 1;
-    this.previousMoves = [];
-=======
-  constructor(player1 = 'Player1', player2 = 'Player2') {
     this.player1 = player1;
     this.player2 = player2;
     this.turnCounter = 1;
     this.previousMoves = [];
     // Keep track of which moves are left - means will always pick an available move
     this.availableMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9];
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
     this.player1Moves = [];
     this.player2Moves = [];
     this.winningCombinations = [
@@ -30,72 +22,7 @@ class TicTacToe {
 
     this.currentTurnHandler = null;
   }
-
-<<<<<<< HEAD
-  calculateTurn() {
-    let turn = Math.floor(Math.random() * 9 + 1);
-    return turn;
-  }
-
-  determinePlayerTurn() {
-    return this.counter % 2 !== 0 ? 0 : 1; // 0 for player, 1 for computer
-  }
-
-  takeTurn() {
-    if (this.gameOver) {
-      return;
-    }
-    let player = this.determinePlayerTurn()
-    let turn = this.calculateTurn();
-    while (this.previousMoves.includes(turn)) {
-      turn = this.calculateTurn();
-    }
-
-    this.previousMoves.push(turn);
-
-    if (player === 0) {
-      console.log("Player 1 turn");
-      this.player1Moves.push(turn);
-      let player1Square = document.querySelector(`#r${turn}`);
-      player1Square.innerText = "X";
-      player1Square.classList.add("green");
-    } else {
-      console.log("Player 2 turn");
-      this.player2Moves.push(turn);
-      let player2Square = document.querySelector(`#r${turn}`);
-      player2Square.innerText = "O";
-      player2Square.classList.add("red");
-    }
-
-    this.counter++;
-    this.determineWinner();
-  }
-
-  playerTurn() {
-    let player = this.determinePlayerTurn()
-    if (this.gameOver) return;
-
-    if (this.currentTurnHandler) {
-      document.querySelectorAll(".row").forEach((cell) => {
-        cell.removeEventListener("click", this.currentTurnHandler);
-=======
-  autoGame() {
-    // Play another turn in a second
-    const turnTime = 1000;
-
-    const playTurn = () => {
-      if (this.gameOver) return;
-      if (this.availableMoves.length !== 0) {
-        this.autoTurn();
-        setTimeout(playTurn, turnTime);
-      } else {
-        TicTacToe.updateStateMessage('Game drawn');
-      }
-    };
-
-    playTurn();
-  }
-
+  // Automated Game Code//
   autoTurn() {
     const currentPlayer = this.determineActivePlayer();
     TicTacToe.updateStateMessage(`Player ${currentPlayer}'s turn`);
@@ -110,10 +37,10 @@ class TicTacToe {
 
     if (this.turnCounter % 2 !== 0) {
       this.player1Moves.push(nextMove);
-      TicTacToe.setSquare(nextMove, 'X', 'green');
+      TicTacToe.setSquare(nextMove, "X", "green");
     } else {
       this.player2Moves.push(nextMove);
-      TicTacToe.setSquare(nextMove, 'O', 'red');
+      TicTacToe.setSquare(nextMove, "O", "red");
     }
 
     // Can only have a winner after the 5th move
@@ -122,6 +49,23 @@ class TicTacToe {
     }
     // No winner? Then increase counter
     this.turnCounter++;
+  }
+
+  autoGame() {
+    // Play another turn in a second
+    const turnTime = 1000;
+
+    const playTurn = () => {
+      if (this.gameOver) return;
+      if (this.availableMoves.length !== 0) {
+        this.autoTurn();
+        setTimeout(playTurn, turnTime);
+      } else {
+        TicTacToe.updateStateMessage("Game drawn");
+      }
+    };
+
+    playTurn();
   }
 
   pickRandomMove() {
@@ -139,87 +83,70 @@ class TicTacToe {
       return 2;
     }
   }
+  // User Game Code//
 
   playerTurn() {
-    // THIS PART NEEDS WORK
+    const currentPlayer = this.determineActivePlayer();
 
-    if (this.gameOver) return;
-
-    // Don't understand the purpose of this
     if (this.currentTurnHandler) {
-      document.querySelectorAll('.row').forEach((cell) => {
-        cell.removeEventListener('click', this.currentTurnHandler);
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
+      document.querySelectorAll(".row").forEach((cell) => {
+        cell.removeEventListener("click", this.currentTurnHandler);
       });
     }
 
     this.currentTurnHandler = (event) => {
-<<<<<<< HEAD
-      const turn = parseInt(event.target.id.slice(1)); 
-=======
       const turn = parseInt(event.target.id.slice(1));
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
       if (this.previousMoves.includes(turn)) {
         return;
       }
 
       this.previousMoves.push(turn);
 
-<<<<<<< HEAD
-      if (player===0) {
+      if (currentPlayer === 1) {
         this.player1Moves.push(turn);
+
         event.target.innerText = "X";
         event.target.classList.add("green");
       }
+
+      this.turnCounter++;
+      console.log(this.turnCounter);
+      console.log(this.previousMoves);
+
+      this.determineWinner();
+      if (!this.gameOver) {
+        this.userGame(); // Continue the game
+      }
     };
+
     document.querySelectorAll(".row").forEach((cell) => {
-        cell.addEventListener("click", this.currentTurnHandler);
-      });
+      cell.addEventListener("click", this.currentTurnHandler);
+    });
   }
 
-  userGame () {
-    
-    const playTurn = () => {
-        let turn = this.determinePlayerTurn()
-        console.log(turn)
-        let movesSet = new Set(this.previousMoves);
-        if (movesSet.size !==9 && !this.gameOver) {
-            if (turn === 0) {
-                this.playerTurn()
-            } else {
-                this.takeTurn()
-        }
+  computerTurn() {
+    const currentPlayer = this.determineActivePlayer();
+    TicTacToe.updateStateMessage(`Player ${currentPlayer}'s turn`);
+    if (this.gameOver) {
+      return;
     }
 
+    let nextMove = this.pickRandomMove();
+
+    // History of moves
+    this.previousMoves.push(nextMove);
+
+    if (this.turnCounter % 2 === 0) {
+      this.player2Moves.push(nextMove);
+      TicTacToe.setSquare(nextMove, "O", "red");
     }
-    playTurn()
-    this.determineWinner()
 
-  }
-
- autoGame() {
-    const playTurn = () => {
-      let movesSet = new Set(this.previousMoves);
-      if (movesSet.size !== 9 && !this.gameOver) {
-        this.takeTurn();
-        setTimeout(playTurn, 1000);
-      }
-    };
-
-    playTurn();
-  }
-
-  determineWinner() {
-    let currentPlayerMoves =
-      this.counter % 2 !== 0 ? this.player1Moves : this.player2Moves;
-    currentPlayerMoves.sort((a, b) => a - b);
-=======
-      if (this.turnCounter % 2 !== 0) {
-        this.player1Moves.push(turn);
-        event.target.innerText = 'X';
-        event.target.classList.add('green');
-      }
-    };
+    // Can only have a winner after the 5th move
+    if (this.turnCounter >= 5) {
+      this.determineWinner();
+    }
+    // No winner? Then increase counter
+    this.turnCounter++;
   }
 
   userGame() {
@@ -231,16 +158,17 @@ class TicTacToe {
       if (this.turnCounter < 9 && !this.gameOver) {
         // THIS PART NEEDS WORK
         // If it is the players turn, let them play
-        if (activePlayer === 0) {
+        if (activePlayer === 1) {
+          console.log("Player1 GOOO");
           this.playerTurn();
-        }
-        //   If it is the computers turn, auto play
-        else {
-          this.autoTurn();
+        } else {
+          
+          console.log("Player2 GOOO");
+          this.computerTurn();
         }
       }
     };
-    playTurn();
+    setTimeout(playTurn, 1000)
     this.determineWinner();
   }
 
@@ -248,36 +176,17 @@ class TicTacToe {
     const activePlayer = this.determineActivePlayer();
     let currentPlayerMoves =
       activePlayer === 1 ? this.player1Moves : this.player2Moves;
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
 
     const checker = (arr, target) => target.every((v) => arr.includes(v));
 
     for (let combination of this.winningCombinations) {
       if (checker(currentPlayerMoves, combination)) {
-<<<<<<< HEAD
-        const winner = this.counter % 2 !== 0 ? this.player1 : this.player2;
-        console.log(`${winner} Wins!`);
-        document.querySelector("h2").innerText = `${winner} Wins`;
-=======
         TicTacToe.updateStateMessage(`Player ${activePlayer} wins!`);
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
         this.gameOver = true;
         return;
       }
     }
   }
-<<<<<<< HEAD
-}
-
-//Auto Play
-document.querySelector("#autoPlay").addEventListener("click", () => {
-  document.querySelectorAll(".row").forEach((cell) => {
-    cell.innerHTML = "";
-    cell.classList.remove("green");
-    cell.classList.remove("red");
-  });
-  let player1Name = document.querySelector("input").value || "Player 1";
-=======
 
   static setSquare(move, counter, colour) {
     const targetSquare = document.querySelector(`#r${move}`);
@@ -286,64 +195,50 @@ document.querySelector("#autoPlay").addEventListener("click", () => {
   }
 
   static clearBoard() {
-    document.querySelectorAll('.row').forEach((cell) => {
-      cell.innerHTML = '';
-      cell.classList.remove('green');
-      cell.classList.remove('red');
-    });
-  }
-
-  static updateStateMessage(msg) {
-    document.querySelector('.gameState').innerText = msg;
-  }
-
-  static enableClicking() {
-    document
-      .querySelector('.board')
-      .addEventListener('click', handleBoardClick);
-  }
-
-  static disableClicking() {
-    document
-      .querySelector('.board')
-      .removeEventListener('click', handleBoardClick);
-  }
-}
-
-//Auto Play
-document.querySelector('#autoPlay').addEventListener('click', () => {
-  TicTacToe.clearBoard();
-  // New game has no message
-  TicTacToe.updateStateMessage('');
-
-  let player1Name = document.querySelector('input').value || 'Player 1';
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
-  let autoTicTacToe = new TicTacToe(player1Name);
-  autoTicTacToe.autoGame();
-});
-
-//User Play
-<<<<<<< HEAD
-document.querySelector("#userPlay").addEventListener("click", () => {
     document.querySelectorAll(".row").forEach((cell) => {
       cell.innerHTML = "";
       cell.classList.remove("green");
       cell.classList.remove("red");
     });
-    let player1Name = document.querySelector("input").value || "Player 1";
-    let userTicToe = new TicTacToe(player1Name);
-    document.querySelector("input").placeholder = player1Name;
-    userTicToe.userGame();
-  });
-=======
-document.querySelector('#userPlay').addEventListener('click', () => {
+  }
+
+  static updateStateMessage(msg) {
+    document.querySelector(".gameState").innerText = msg;
+  }
+
+  static enableClicking() {
+    document
+      .querySelector(".board")
+      .addEventListener("click", handleBoardClick);
+  }
+
+  static disableClicking() {
+    document
+      .querySelector(".board")
+      .removeEventListener("click", handleBoardClick);
+  }
+}
+
+//Auto Play
+document.querySelector("#autoPlay").addEventListener("click", () => {
   TicTacToe.clearBoard();
   // New game has no message
-  TicTacToe.updateStateMessage('');
+  TicTacToe.updateStateMessage("");
 
-  let player1Name = document.querySelector('input').value || 'Player 1';
+  let player1Name = document.querySelector("input").value || "Player 1";
+  let autoTicTacToe = new TicTacToe(player1Name);
+  autoTicTacToe.autoGame();
+});
+
+//User Play
+document.querySelector("#userPlay").addEventListener("click", () => {
+  TicTacToe.clearBoard();
+  // New game has no message
+  TicTacToe.updateStateMessage("");
+
+  let player1Name = document.querySelector("input").value || "Player 1";
   let userTicToe = new TicTacToe(player1Name);
-  document.querySelector('input').placeholder = player1Name;
+  document.querySelector("input").placeholder = player1Name;
 
   userTicToe.userGame();
 });
@@ -352,4 +247,9 @@ document.querySelector('#userPlay').addEventListener('click', () => {
 function handleBoardClick(e) {
   console.log(e.target);
 }
->>>>>>> 3213ad350d9477b1ce5a9971f22df4770e654684
+
+// document.querySelector('.board').addEventListener('click', function (e) {
+//   let click = e.target.id
+//   console.log(click)
+
+// })
