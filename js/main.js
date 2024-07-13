@@ -4,6 +4,8 @@ class TicTacToe {
     this.player2 = player2;
     this.turnCounter = 1;
     this.previousMoves = [];
+    // Who is the active player?
+    this._activePlayer;
     // Keep track of which moves are left - means will always pick an available move
     this.availableMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     this.player1Moves = [];
@@ -19,6 +21,8 @@ class TicTacToe {
       [3, 5, 7],
     ];
     this.gameOver = false;
+    // Make it so I can access TicTacToe object in clicks
+    this.handleBoardClick = this.handleBoardClick.bind(this);
 
     this.currentTurnHandler = null;
   }
@@ -40,8 +44,8 @@ class TicTacToe {
   }
 
   autoTurn() {
-    const currentPlayer = this.determineActivePlayer();
-    TicTacToe.updateStateMessage(`Player ${currentPlayer}'s turn`);
+    this.determineActivePlayer();
+    TicTacToe.updateStateMessage(`Player ${this._activePlayer}'s turn`);
     if (this.gameOver) {
       return;
     }
@@ -77,80 +81,106 @@ class TicTacToe {
   determineActivePlayer() {
     // Return the player number that matches
     if (this.turnCounter % 2 === 1) {
-      return 1;
+      this._activePlayer = 1;
     } else {
-      return 2;
+      this._activePlayer = 2;
     }
   }
 
   playerTurn() {
+    this.determineActivePlayer();
     // THIS PART NEEDS WORK
 
     if (this.gameOver) return;
 
-    // Don't understand the purpose of this
-    if (this.currentTurnHandler) {
-      document.querySelectorAll('.row').forEach((cell) => {
-        cell.removeEventListener('click', this.currentTurnHandler);
-      });
-    }
-
-    this.currentTurnHandler = (event) => {
-      const turn = parseInt(event.target.id.slice(1));
-      if (this.previousMoves.includes(turn)) {
-        return;
-      }
-
-      this.previousMoves.push(turn);
-
-      if (this.turnCounter % 2 !== 0) {
-        this.player1Moves.push(turn);
-        event.target.innerText = 'X';
-        event.target.classList.add('green');
-      }
-    };
+    // It's the players turn so the board should be clickable
+    this.enableClicking();
+    TicTacToe.updateStateMessage(`Player ${this._activePlayer}'s turn`);
   }
 
-  userGame() {
-    const activePlayer = this.determineActivePlayer();
-    TicTacToe.updateStateMessage(activePlayer);
-
-    const playTurn = () => {
-      // Not had 9 turns or game over?
-      if (this.turnCounter < 9 && !this.gameOver) {
-        // THIS PART NEEDS WORK
-        // If it is the players turn, let them play
-        if (activePlayer === 0) {
-          this.playerTurn();
-        }
-        //   If it is the computers turn, auto play
-        else {
-          this.autoTurn();
-        }
+  async userGame() {
+    // Not had 9 turns or game over? - Make this iteration later.
+    while (this.turnCounter <= 9 && !this.gameOver) {
+      this.determineActivePlayer();
+      // If it is the players turn, let them play
+      if (this._activePlayer === 1) {
+        this.waiting = true;
+        this.playerTurn();
+        // Wait here for the promise to resolve
+        await this.waitForPlayerClick();
       }
-    };
-    playTurn();
-    this.determineWinner();
+      //   If it is the computers turn, auto play
+      else {
+        this.autoTurn();
+      }
+    }
   }
 
   determineWinner() {
-    const activePlayer = this.determineActivePlayer();
+    this.determineActivePlayer();
     let currentPlayerMoves =
-      activePlayer === 1 ? this.player1Moves : this.player2Moves;
+      this._activePlayer === 1 ? this.player1Moves : this.player2Moves;
 
     const checker = (arr, target) => target.every((v) => arr.includes(v));
 
     for (let combination of this.winningCombinations) {
       if (checker(currentPlayerMoves, combination)) {
-        TicTacToe.updateStateMessage(`Player ${activePlayer} wins!`);
+        TicTacToe.updateStateMessage(`Player ${this._activePlayer} wins!`);
         this.gameOver = true;
         return;
       }
     }
   }
 
+  waitForPlayerClick() {
+    return new Promise((resolve) => {
+      this.clickResolver = resolve;
+    });
+  }
+
+  enableClicking() {
+    document
+      .querySelector('.board')
+      .addEventListener('click', this.handleBoardClick);
+  }
+
+  disableClicking() {
+    document
+      .querySelector('.board')
+      .removeEventListener('click', this.handleBoardClick);
+  }
+
+  handleBoardClick(e) {
+    const clickedCell = +e.target.id.replace('cell-', '');
+    // Is it a valid move?
+    if (!this.availableMoves.includes(clickedCell)) return;
+
+    // Remove from playable
+    this.availableMoves.splice(this.availableMoves.indexOf(clickedCell), 1);
+    // Add to played
+    this.previousMoves.push(clickedCell);
+
+    // Set piece
+    this.player1Moves.push(clickedCell);
+    TicTacToe.setSquare(clickedCell, 'X', 'green');
+
+    // Disable clicking
+    this.disableClicking();
+    // Increment turn
+    if (this.turnCounter >= 5) {
+      this.determineWinner();
+    }
+    if (this.clickResolver) {
+      this.clickResolver();
+      this.clickResolver = null;
+    }
+
+    this.turnCounter++;
+    this.waiting = false;
+  }
+
   static setSquare(move, counter, colour) {
-    const targetSquare = document.querySelector(`#r${move}`);
+    const targetSquare = document.querySelector(`#cell-${move}`);
     targetSquare.innerText = counter;
     targetSquare.classList.add(colour);
   }
@@ -167,63 +197,43 @@ class TicTacToe {
     document.querySelector('.gameState').innerText = msg;
   }
 
-  static enableClicking() {
-    document
-      .querySelector('.board')
-      .addEventListener('click', handleBoardClick);
-  }
-
-  static disableClicking() {
-    document
-      .querySelector('.board')
-      .removeEventListener('click', handleBoardClick);
-  }
-
   static generateBoard() {
     const boardEle = document.querySelector('.board');
     const rows = 3;
     const columns = 3;
     let boardHTML = '';
     for (let column = 1; column <= columns; column++) {
-      boardHTML += `<section class="column" id="c${column}">\n`;
+      boardHTML += `<section class="column" id="col-${column}">\n`;
       for (let row = 1; row <= rows; row++) {
-        boardHTML += `<section class="row" id="r${(column - 1) * 3 + row}"></section>\n`;
+        boardHTML += `<section class="row" id="cell-${(column - 1) * 3 + row}"></section>\n`;
       }
       boardHTML += `</section>\n`;
     }
     boardEle.innerHTML = boardHTML;
   }
 }
+
 // Generates a new board on page load
 TicTacToe.generateBoard();
 
 //Auto Play
 document.querySelector('#autoPlay').addEventListener('click', () => {
-  // Creates a new board for a new game
-  TicTacToe.generateBoard();
-  // New game has no message
-  TicTacToe.updateStateMessage('');
-
-  let player1Name = document.querySelector('input').value || 'Player 1';
-  let autoTicTacToe = new TicTacToe(player1Name);
+  setupGame();
+  let autoTicTacToe = new TicTacToe();
   autoTicTacToe.autoGame();
 });
 
 //User Play
 document.querySelector('#userPlay').addEventListener('click', () => {
+  setupGame();
+
+  let userTicToe = new TicTacToe();
+  userTicToe.userGame();
+});
+
+function setupGame() {
   // Creates a new board for a new game
   TicTacToe.generateBoard();
   // New game has no message
   TicTacToe.updateStateMessage('');
-
-  let player1Name = document.querySelector('input').value || 'Player 1';
-  let userTicToe = new TicTacToe(player1Name);
-  document.querySelector('input').placeholder = player1Name;
-
-  userTicToe.userGame();
-});
-
-// NEEDS WORK
-function handleBoardClick(e) {
-  console.log(e.target);
 }
