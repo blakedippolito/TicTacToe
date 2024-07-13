@@ -1,7 +1,6 @@
 class TicTacToe {
-  constructor(player1 = 'Player1', player2 = 'Player2') {
-    this.player1 = player1;
-    this.player2 = player2;
+  constructor(player1 = 'Player1', player2 = 'CPU') {
+    this.playerNames = [player1, player2];
     this.turnCounter = 1;
     this.previousMoves = [];
     // Who is the active player?
@@ -26,6 +25,12 @@ class TicTacToe {
 
     this.currentTurnHandler = null;
   }
+
+  get playerName() {
+    this.determineActivePlayer();
+    return this.playerNames[this._activePlayer - 1];
+  }
+
   autoGame() {
     // Play another turn in a second
     const turnTime = 1000;
@@ -45,7 +50,7 @@ class TicTacToe {
 
   autoTurn() {
     this.determineActivePlayer();
-    TicTacToe.updateStateMessage(`Player ${this._activePlayer}'s turn`);
+    TicTacToe.updateStateMessage(`${this.playerName}'s turn`);
     if (this.gameOver) {
       return;
     }
@@ -95,7 +100,7 @@ class TicTacToe {
 
     // It's the players turn so the board should be clickable
     this.enableClicking();
-    TicTacToe.updateStateMessage(`Player ${this._activePlayer}'s turn`);
+    TicTacToe.updateStateMessage(`${this.playerName}'s turn`);
   }
 
   async userGame() {
@@ -125,7 +130,7 @@ class TicTacToe {
 
     for (let combination of this.winningCombinations) {
       if (checker(currentPlayerMoves, combination)) {
-        TicTacToe.updateStateMessage(`Player ${this._activePlayer} wins!`);
+        TicTacToe.updateStateMessage(`${this.playerName} wins!`);
         this.gameOver = true;
         return;
       }
@@ -219,7 +224,7 @@ TicTacToe.generateBoard();
 //Auto Play
 document.querySelector('#autoPlay').addEventListener('click', () => {
   setupGame();
-  let autoTicTacToe = new TicTacToe();
+  let autoTicTacToe = new TicTacToe('CPU 1', 'CPU 2');
   autoTicTacToe.autoGame();
 });
 
@@ -227,7 +232,7 @@ document.querySelector('#autoPlay').addEventListener('click', () => {
 document.querySelector('#userPlay').addEventListener('click', () => {
   setupGame();
 
-  let userTicToe = new TicTacToe();
+  let userTicToe = new TicTacToe('Player 1', 'CPU');
   userTicToe.userGame();
 });
 
